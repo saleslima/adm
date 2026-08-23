@@ -23,3 +23,7 @@ Conteúdo:
 
 - Botão de instalação da PWA incluído na interface.
 - Ícone do app com chapéu e nome ADM.
+
+- Botão "Instalar ADM" permanece visível no cabeçalho e na tela inicial.
+
+- Após a instalação, os botões “Instalar ADM” desaparecem automaticamente.

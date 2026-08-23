@@ -20,24 +20,19 @@ function setTheme(theme){
 document.querySelectorAll("[data-theme]").forEach(b=>b.addEventListener("click",()=>setTheme(b.dataset.theme)));
 setTheme(localStorage.getItem("admTheme") || "day");
 
-const installBtn = document.getElementById("installBtn");
+const installButtons = () => [document.getElementById("installBtn"), document.getElementById("installHeroBtn")].filter(Boolean);
+
 function updateInstallButton(mode = "auto") {
-  if (!installBtn) return;
-  if (mode === "available") {
-    installBtn.classList.remove("hidden","secondaryState");
-    installBtn.textContent = "⬇ Instalar";
-    installBtn.disabled = false;
-  } else if (mode === "installed") {
-    installBtn.classList.remove("hidden");
-    installBtn.classList.add("secondaryState");
-    installBtn.textContent = "✔ Instalado";
-    installBtn.disabled = true;
-  } else {
-    installBtn.classList.remove("hidden");
-    installBtn.classList.add("secondaryState");
-    installBtn.textContent = "📲 Como instalar";
-    installBtn.disabled = false;
-  }
+  installButtons().forEach(btn => {
+    if (mode === "installed") {
+      btn.classList.add("hidden");
+      btn.disabled = true;
+      return;
+    }
+    btn.classList.remove("hidden", "secondaryState");
+    btn.textContent = "📲 Instalar ADM";
+    btn.disabled = false;
+  });
 }
 
 window.addEventListener("beforeinstallprompt", (e) => {
@@ -55,7 +50,7 @@ function isStandalone() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
-installBtn?.addEventListener("click", async () => {
+async function installADM() {
   if (isStandalone()) {
     updateInstallButton("installed");
     return;
@@ -63,14 +58,25 @@ installBtn?.addEventListener("click", async () => {
   if (deferredInstallPrompt) {
     deferredInstallPrompt.prompt();
     const result = await deferredInstallPrompt.userChoice;
-    if (result && result.outcome !== "accepted") updateInstallButton("auto");
     deferredInstallPrompt = null;
+    if (result && result.outcome === "accepted") updateInstallButton("installed");
+    else updateInstallButton("auto");
     return;
   }
-  alert("Para instalar o ADM, abra o menu do navegador e escolha 'Instalar aplicativo', 'Adicionar à tela inicial' ou opção equivalente.");
-});
+  alert("Para instalar o ADM: abra o menu do navegador e toque em 'Instalar aplicativo' ou 'Adicionar à tela inicial'. Depois o ADM aparecerá no celular com o ícone de chapéu de formando.");
+}
 
-updateInstallButton(isStandalone() ? "installed" : "auto");
+function bindInstallButtons(){
+  installButtons().forEach(btn => {
+    if (!btn.dataset.installBound) {
+      btn.addEventListener("click", installADM);
+      btn.dataset.installBound = "1";
+    }
+  });
+  updateInstallButton(isStandalone() ? "installed" : (deferredInstallPrompt ? "available" : "auto"));
+}
+
+bindInstallButtons();
 
 document.getElementById("homeBtn").addEventListener("click", renderHome);
 
@@ -78,6 +84,7 @@ function renderHome(){
   currentLesson = null;
   const t = document.getElementById("homeTemplate").content.cloneNode(true);
   app.replaceChildren(t);
+  bindInstallButtons();
   const grid = document.getElementById("lessonGrid");
   const progress = getState();
   Object.entries(window.LESSONS).forEach(([id,l])=>{
