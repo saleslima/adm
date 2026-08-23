@@ -142,7 +142,13 @@ function renderQuiz(id){
     document.getElementById("progressBar").style.width=`${n/30*100}%`;
     document.getElementById("progressText").textContent=`${n}/30`;
   };
-  box.addEventListener("change",updateProgress);
+  box.addEventListener("change",e=>{
+    updateProgress();
+    const input=e.target.closest('input[type="radio"]');
+    if(!input)return;
+    const card=input.closest(".qCard");
+    card?.classList.add("answered");
+  });
   box.addEventListener("click",e=>{
     const btn=e.target.closest(".tipBtn"); if(!btn)return;
     btn.nextElementSibling.classList.toggle("show");

@@ -16,7 +16,7 @@ Conteúdo:
 - 20 flashcards por aula.
 - Nota mínima: 80% (24/30).
 - Ao alcançar 80%: confetes + "Parabéns! Simone, você é Maravilhosa!" por 5 segundos.
-- Botão "Dicas" aparece nas questões acertadas após a correção.
+- Botão "Dicas" aparece em cada questão assim que uma alternativa é marcada; a dica traz um caminho mais rápido e explicado para chegar à resposta.
 - Modos Dia, Noite e Neon.
 - Progresso e melhor nota salvos no localStorage.
 - Cache offline via Service Worker.
