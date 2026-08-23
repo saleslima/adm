@@ -20,3 +20,6 @@ Conteúdo:
 - Modos Dia, Noite e Neon.
 - Progresso e melhor nota salvos no localStorage.
 - Cache offline via Service Worker.
+
+- Botão de instalação da PWA incluído na interface.
+- Ícone do app com chapéu e nome ADM.

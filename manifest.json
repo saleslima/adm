@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#f4f7fb",
   "theme_color": "#315efb",
-  "description": "Questões e flashcards das Aulas 01 a 06.",
+  "description": "ADM — PWA de estudos com questões e flashcards.",
   "icons": [
     {
       "src": "icons/icon-192.png",

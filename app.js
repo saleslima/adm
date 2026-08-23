@@ -4,6 +4,7 @@ const celebration = document.getElementById("celebration");
 let currentLesson = null;
 let flashIndex = 0;
 let flashFlipped = false;
+let deferredInstallPrompt = null;
 
 const stateKey = "admSimoneProgressV1";
 const getState = () => JSON.parse(localStorage.getItem(stateKey) || "{}");
@@ -18,6 +19,58 @@ function setTheme(theme){
 }
 document.querySelectorAll("[data-theme]").forEach(b=>b.addEventListener("click",()=>setTheme(b.dataset.theme)));
 setTheme(localStorage.getItem("admTheme") || "day");
+
+const installBtn = document.getElementById("installBtn");
+function updateInstallButton(mode = "auto") {
+  if (!installBtn) return;
+  if (mode === "available") {
+    installBtn.classList.remove("hidden","secondaryState");
+    installBtn.textContent = "⬇ Instalar";
+    installBtn.disabled = false;
+  } else if (mode === "installed") {
+    installBtn.classList.remove("hidden");
+    installBtn.classList.add("secondaryState");
+    installBtn.textContent = "✔ Instalado";
+    installBtn.disabled = true;
+  } else {
+    installBtn.classList.remove("hidden");
+    installBtn.classList.add("secondaryState");
+    installBtn.textContent = "📲 Como instalar";
+    installBtn.disabled = false;
+  }
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  updateInstallButton("available");
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  updateInstallButton("installed");
+});
+
+function isStandalone() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+installBtn?.addEventListener("click", async () => {
+  if (isStandalone()) {
+    updateInstallButton("installed");
+    return;
+  }
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const result = await deferredInstallPrompt.userChoice;
+    if (result && result.outcome !== "accepted") updateInstallButton("auto");
+    deferredInstallPrompt = null;
+    return;
+  }
+  alert("Para instalar o ADM, abra o menu do navegador e escolha 'Instalar aplicativo', 'Adicionar à tela inicial' ou opção equivalente.");
+});
+
+updateInstallButton(isStandalone() ? "installed" : "auto");
 
 document.getElementById("homeBtn").addEventListener("click", renderHome);
 
