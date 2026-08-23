@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="PWA de estudos — Administração Financeira e Gerenciamento de Capital">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>ADM — Aulas 01 a 06</title>
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" id="homeBtn" aria-label="Início">
+      <span class="brandMark">F</span><span><b>ADM</b><small>Simone</small></span>
+    </button>
+    <div class="themeBox" aria-label="Tema">
+      <button data-theme="day" title="Modo dia">☀️</button>
+      <button data-theme="night" title="Modo noite">🌙</button>
+      <button data-theme="neon" title="Modo neon">⚡</button>
+    </div>
+  </header>
+
+  <main id="app" class="app"></main>
+
+  <div id="celebration" class="celebration hidden" aria-live="assertive">
+    <canvas id="confettiCanvas"></canvas>
+    <div class="celebrateCard">
+      <div class="trophy">🏆</div>
+      <h1>Parabéns!</h1>
+      <p>Simone, você é Maravilhosa!</p>
+    </div>
+  </div>
+
+  <template id="homeTemplate">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">ADMINISTRAÇÃO FINANCEIRA</span>
+        <h1>Estude por aula, pratique e revise.</h1>
+        <p>6 aulas • 30 questões de múltipla escolha por aula • 20 flashcards por aula • nível universitário.</p>
+      </div>
+      <div class="heroBadge"><strong>80%</strong><span>para aprovação</span></div>
+    </section>
+    <section>
+      <div class="sectionTitle">
+        <div><span class="eyebrow">CONTEÚDO</span><h2>Escolha uma aula</h2></div>
+      </div>
+      <div id="lessonGrid" class="lessonGrid"></div>
+    </section>
+  </template>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
