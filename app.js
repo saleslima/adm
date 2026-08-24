@@ -149,8 +149,10 @@ function renderQuiz(id){
       box.appendChild(blockResult);
     }
   });
+  const correctedBlocks=new Set();
   const showBlockResult=(questionIndex)=>{
     const block=Math.floor(questionIndex/5);
+    if(correctedBlocks.has(block))return;
     const start=block*5;
     const end=start+5;
     const answered=[];
@@ -159,13 +161,27 @@ function renderQuiz(id){
       if(checked) answered.push({i,checked});
     }
     if(answered.length!==5)return;
+
+    correctedBlocks.add(block);
     let hits=0;
     answered.forEach(({i,checked})=>{
-      if(Number(checked.value)===l.questions[i].a)hits++;
+      const q=l.questions[i];
+      const card=document.querySelector(`.qCard[data-idx="${i}"]`);
+      const selected=Number(checked.value);
+      card.querySelectorAll(".answer").forEach((lab,j)=>{
+        lab.classList.toggle("correct",j===q.a);
+        if(selected===j && j!==q.a)lab.classList.add("wrong");
+        lab.querySelector("input").disabled=true;
+      });
+      if(selected===q.a){
+        hits++;
+        card.classList.add("correctCard");
+      }
     });
+
     const pct=Math.round(hits/5*100);
     const result=document.getElementById(`blockResult${block}`);
-    result.innerHTML=`<section class="result"><div class="scoreCircle">${pct}%</div><div><h2>Resultado das questões ${start+1} a ${end}</h2><p>${hits} acerto${hits===1?"":"s"} de 5.</p></div></section>`;
+    result.innerHTML=`<section class="result"><div class="scoreCircle">${pct}%</div><div><h2>Correção das questões ${start+1} a ${end}</h2><p>${hits} acerto${hits===1?"":"s"} de 5. As cinco questões acima já foram corrigidas.</p></div></section>`;
     result.scrollIntoView({behavior:"smooth",block:"center"});
   };
   const updateProgress=()=>{
