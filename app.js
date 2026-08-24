@@ -129,6 +129,26 @@ function renderMode(id){
 function renderQuiz(id){
   currentLesson=id;
   const l=window.LESSONS[id];
+
+  // Embaralha as alternativas a cada nova prova e distribui as respostas
+  // corretas entre A, B, C e D, evitando que fiquem concentradas em uma letra.
+  const shuffle = arr => {
+    const copy=[...arr];
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [copy[i],copy[j]]=[copy[j],copy[i]];
+    }
+    return copy;
+  };
+  const correctPositions=shuffle(Array.from({length:l.questions.length},(_,i)=>i%4));
+  const quizQuestions=l.questions.map((q,idx)=>{
+    const correct=q.opts[q.a];
+    const distractors=shuffle(q.opts.filter((_,i)=>i!==q.a));
+    const pos=correctPositions[idx];
+    const opts=[...distractors];
+    opts.splice(pos,0,correct);
+    return {...q,opts,a:pos};
+  });
   app.innerHTML=`<div class="quizWrap">
     <div class="quizTop"><button class="backBtn" id="backMode">← Aula</button><div class="progressOuter"><div class="progressInner" id="progressBar"></div></div><span class="progressText" id="progressText">0/30</span></div>
     <div class="modeHead"><span class="eyebrow">AULA ${String(id).padStart(2,"0")} • QUESTÕES</span><h1>Teste de conhecimentos</h1><p>Marque uma alternativa em cada questão. A nota mínima para aprovação é 80% (24 acertos).</p></div>
@@ -137,7 +157,7 @@ function renderQuiz(id){
   </div>`;
   document.getElementById("backMode").onclick=()=>renderMode(id);
   const box=document.getElementById("questions");
-  l.questions.forEach((q,idx)=>{
+  quizQuestions.forEach((q,idx)=>{
     const card=document.createElement("article");card.className="qCard";card.dataset.idx=idx;
     card.innerHTML=`<span class="qNum">QUESTÃO ${String(idx+1).padStart(2,"0")}</span><h3>${q.q}</h3>
       <div class="answers">${q.opts.map((o,j)=>`<label class="answer"><input type="radio" name="q${idx}" value="${j}"><span><b>${"ABCD"[j]}.</b> ${o}</span></label>`).join("")}</div>
@@ -165,7 +185,7 @@ function renderQuiz(id){
     correctedBlocks.add(block);
     let hits=0;
     answered.forEach(({i,checked})=>{
-      const q=l.questions[i];
+      const q=quizQuestions[i];
       const card=document.querySelector(`.qCard[data-idx="${i}"]`);
       const selected=Number(checked.value);
       card.querySelectorAll(".answer").forEach((lab,j)=>{
@@ -185,7 +205,7 @@ function renderQuiz(id){
     result.scrollIntoView({behavior:"smooth",block:"center"});
   };
   const updateProgress=()=>{
-    let n=0;l.questions.forEach((_,i)=>{if(document.querySelector(`input[name="q${i}"]:checked`))n++});
+    let n=0;quizQuestions.forEach((_,i)=>{if(document.querySelector(`input[name="q${i}"]:checked`))n++});
     document.getElementById("progressBar").style.width=`${n/30*100}%`;
     document.getElementById("progressText").textContent=`${n}/30`;
   };
@@ -203,10 +223,10 @@ function renderQuiz(id){
   });
   document.getElementById("clearQuiz").onclick=()=>{renderQuiz(id)};
   document.getElementById("correctQuiz").onclick=()=>{
-    const unanswered=l.questions.filter((_,i)=>!document.querySelector(`input[name="q${i}"]:checked`)).length;
+    const unanswered=quizQuestions.filter((_,i)=>!document.querySelector(`input[name="q${i}"]:checked`)).length;
     if(unanswered && !confirm(`Ainda existem ${unanswered} questão(ões) sem resposta. Corrigir mesmo assim?`))return;
     let hits=0;
-    l.questions.forEach((q,i)=>{
+    quizQuestions.forEach((q,i)=>{
       const card=document.querySelector(`.qCard[data-idx="${i}"]`);
       const checked=document.querySelector(`input[name="q${i}"]:checked`);
       card.querySelectorAll(".answer").forEach((lab,j)=>{
