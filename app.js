@@ -143,7 +143,31 @@ function renderQuiz(id){
       <div class="answers">${q.opts.map((o,j)=>`<label class="answer"><input type="radio" name="q${idx}" value="${j}"><span><b>${"ABCD"[j]}.</b> ${o}</span></label>`).join("")}</div>
       <div class="tipRow"><button class="secondary tipBtn" type="button">💡 Dicas</button><div class="tipText">${q.tip}</div></div>`;
     box.appendChild(card);
+    if((idx+1)%5===0){
+      const blockResult=document.createElement("div");
+      blockResult.id=`blockResult${Math.floor(idx/5)}`;
+      box.appendChild(blockResult);
+    }
   });
+  const showBlockResult=(questionIndex)=>{
+    const block=Math.floor(questionIndex/5);
+    const start=block*5;
+    const end=start+5;
+    const answered=[];
+    for(let i=start;i<end;i++){
+      const checked=document.querySelector(`input[name="q${i}"]:checked`);
+      if(checked) answered.push({i,checked});
+    }
+    if(answered.length!==5)return;
+    let hits=0;
+    answered.forEach(({i,checked})=>{
+      if(Number(checked.value)===l.questions[i].a)hits++;
+    });
+    const pct=Math.round(hits/5*100);
+    const result=document.getElementById(`blockResult${block}`);
+    result.innerHTML=`<section class="result"><div class="scoreCircle">${pct}%</div><div><h2>Resultado das questões ${start+1} a ${end}</h2><p>${hits} acerto${hits===1?"":"s"} de 5.</p></div></section>`;
+    result.scrollIntoView({behavior:"smooth",block:"center"});
+  };
   const updateProgress=()=>{
     let n=0;l.questions.forEach((_,i)=>{if(document.querySelector(`input[name="q${i}"]:checked`))n++});
     document.getElementById("progressBar").style.width=`${n/30*100}%`;
@@ -155,6 +179,7 @@ function renderQuiz(id){
     if(!input)return;
     const card=input.closest(".qCard");
     card?.classList.add("answered");
+    showBlockResult(Number(card.dataset.idx));
   });
   box.addEventListener("click",e=>{
     const btn=e.target.closest(".tipBtn"); if(!btn)return;
